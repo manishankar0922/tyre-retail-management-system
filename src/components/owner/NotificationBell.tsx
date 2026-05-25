@@ -1,0 +1,100 @@
+"use client";
+
+import React, { useEffect, useState, useRef } from "react";
+import { Bell } from "lucide-react";
+import { ownerDashboardService } from "@/services/ownerDashboard.service";
+import NotificationPanel, { NotificationEvent } from "./NotificationPanel";
+
+export default function NotificationBell() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const bellRef = useRef<HTMLDivElement>(null);
+
+  const fetchNotifications = async () => {
+    setIsLoading(true);
+    try {
+      const feed = await ownerDashboardService.getNotificationFeed();
+      setNotifications(feed);
+
+      const criticalCount = feed.filter(f => f.type === "low_stock").length;
+      setUnreadCount(criticalCount);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    
+    let interval: NodeJS.Timeout;
+    
+    const startPolling = () => {
+      interval = setInterval(fetchNotifications, 300000); // 5 minutes auto-refresh
+    };
+    
+    const stopPolling = () => {
+      if (interval) clearInterval(interval);
+    };
+    
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        fetchNotifications();
+        startPolling();
+      }
+    };
+    
+    startPolling();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  return (
+    <div ref={bellRef} className="relative">
+      <button
+        onClick={() => {
+          setIsOpen(!isOpen);
+          if (!isOpen) {
+            fetchNotifications(); // Refresh on open
+          }
+        }}
+        className="relative p-2 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-250/65 dark:hover:bg-zinc-800 rounded-xl transition-all border border-zinc-200/50 dark:border-zinc-800/40 cursor-pointer"
+        aria-label="Operational Notifications"
+      >
+        <Bell className="w-4.5 h-4.5" />
+        {unreadCount > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[8px] font-black text-white border-2 border-white dark:border-zinc-950">
+            {unreadCount}
+          </span>
+        )}
+      </button>
+
+      {isOpen && (
+        <NotificationPanel
+          notifications={notifications}
+          isLoading={isLoading}
+          onClose={() => setIsOpen(false)}
+        />
+      )}
+    </div>
+  );
+}
