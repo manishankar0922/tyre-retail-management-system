@@ -96,7 +96,7 @@ export default function AccountantInvoicesPage() {
   };
 
   const handlePrintView = (invoiceId: number) => {
-    router.push(`/invoice/print/${invoiceId}?action=print`);
+    router.push(`/invoice/print?id=${invoiceId}&action=print`);
   };
 
   // Load invoices matching search query

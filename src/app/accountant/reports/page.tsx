@@ -1,16 +1,8 @@
-import { Suspense } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { reportService } from "@/services/report.service";
 import DailyReportView from "@/components/reports/DailyReportView";
-
-interface PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
-
-async function DailyReportLoader({ searchParams }: { searchParams: PageProps["searchParams"] }) {
-  await searchParams; // Await inside the Suspense boundary to avoid blocking layout
-  const data = await reportService.getDailyReport();
-  return <DailyReportView data={data} role="accountant" />;
-}
 
 function ReportSkeleton() {
   return (
@@ -26,10 +18,28 @@ function ReportSkeleton() {
   );
 }
 
-export default function AccountantReportsPage({ searchParams }: PageProps) {
-  return (
-    <Suspense fallback={<ReportSkeleton />}>
-      <DailyReportLoader searchParams={searchParams} />
-    </Suspense>
-  );
+export default function AccountantReportsPage() {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadReport() {
+      try {
+        setIsLoading(true);
+        const reportData = await reportService.getDailyReport();
+        setData(reportData);
+      } catch (err) {
+        console.error("Error loading accountant report:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadReport();
+  }, []);
+
+  if (isLoading || !data) {
+    return <ReportSkeleton />;
+  }
+
+  return <DailyReportView data={data} role="accountant" />;
 }

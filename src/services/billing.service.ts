@@ -61,7 +61,7 @@ export const billingService = {
 
       // 2. Validate stock levels for each item BEFORE inserting the invoice header
       for (const item of items) {
-        const prod = currentProducts.find(p => p.id === item.product_id);
+        const prod = currentProducts.find((p: any) => p.id === item.product_id);
         if (!prod) {
           return { success: false, error: `Product ID ${item.product_id} not found in the database.` };
         }
@@ -148,7 +148,7 @@ export const billingService = {
       // 6. Insert inventory logs for stock deduction
       if (currentProducts && currentProducts.length > 0) {
         const logsToInsert = items.map(item => {
-          const prod = currentProducts.find(p => p.id === item.product_id);
+          const prod = currentProducts.find((p: any) => p.id === item.product_id);
           const oldStock = prod ? prod.stock_qty : 0;
           const newStock = oldStock - item.qty;
           return {

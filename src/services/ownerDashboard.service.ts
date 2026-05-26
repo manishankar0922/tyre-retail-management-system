@@ -82,7 +82,7 @@ export const ownerDashboardService = {
     let todayNetRevenue = 0;
     let todayGstCollected = 0;
 
-    invoices.forEach(inv => {
+    invoices.forEach((inv: any) => {
       todayGrossRevenue += Number(inv.subtotal !== null && inv.subtotal !== undefined ? inv.subtotal : (inv.total_amount || 0));
       todayNetRevenue += Number(inv.total_amount || 0);
       todayGstCollected += Number(inv.gst_amount || 0);

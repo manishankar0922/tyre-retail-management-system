@@ -18,7 +18,7 @@ export default function InvoiceActions({ invoiceId, invoiceNo, onClose }: Invoic
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handlePrint = () => {
-    router.push(`/invoice/print/${invoiceId}?action=print`);
+    router.push(`/invoice/print?id=${invoiceId}&action=print`);
   };
 
   const handleDownload = async () => {

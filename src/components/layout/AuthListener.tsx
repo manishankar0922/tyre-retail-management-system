@@ -28,7 +28,7 @@ export default function AuthListener() {
     window.addEventListener("unhandledrejection", handleRejection);
 
     // Only listen to active auth events, skip the redundant initial mount fetch
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (event === "SIGNED_OUT" || !session) {
         clearSession();
         router.push("/");

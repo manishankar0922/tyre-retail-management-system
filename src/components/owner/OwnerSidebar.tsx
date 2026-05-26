@@ -69,7 +69,7 @@ export default function OwnerSidebar() {
       document.cookie = "currentUser=; path=/; max-age=0; SameSite=Lax";
       document.cookie = "sb-access-token=; path=/; max-age=0; SameSite=Lax";
       // Trigger API call in background
-      supabase.auth.signOut().catch((err) => console.warn("Supabase signOut error:", err));
+      supabase.auth.signOut().catch((err: any) => console.warn("Supabase signOut error:", err));
     }
     router.push("/");
   };

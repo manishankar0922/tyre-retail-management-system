@@ -153,7 +153,7 @@ export const reportService = {
     let upiTotal = 0;
     let cardTotal = 0;
 
-    invoices.forEach(inv => {
+    invoices.forEach((inv: any) => {
       const gross = Number(inv.subtotal !== null && inv.subtotal !== undefined ? inv.subtotal : (inv.total_amount || 0));
       const disc = Number(inv.discount_amount || 0);
       const gstAmt = Number(inv.gst_amount || 0);
@@ -175,12 +175,12 @@ export const reportService = {
     });
 
     // Fetch total tyres sold today: Sum up qty from parallel fetched invoice items
-    const tyresSoldToday = rawTodayInvoiceItems.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+    const tyresSoldToday = rawTodayInvoiceItems.reduce((sum: number, item: any) => sum + Number(item.qty || 0), 0);
 
     // Filter products having stock <= min_stock
     const lowStockProducts: LowStockProduct[] = products
-      .filter(p => p.stock_qty <= (p.min_stock !== undefined ? p.min_stock : 5))
-      .map(p => ({
+      .filter((p: any) => p.stock_qty <= (p.min_stock !== undefined ? p.min_stock : 5))
+      .map((p: any) => ({
         brand: p.brand,
         model: p.model,
         tyre_size: p.tyre_size,
